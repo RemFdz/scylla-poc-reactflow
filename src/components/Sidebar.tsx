@@ -13,7 +13,7 @@ const Sidebar = () => {
 
     return (
         <aside>
-            <div className="description">You can drag these nodes to the pane on the right.</div>
+            <div className="description">You can drag these nodes in the workflow on the left.</div>
             <div className="dndnode input" onDragStart={(event) => onDragStart(event, 'git clone')} draggable>
                 Git clone
             </div>
