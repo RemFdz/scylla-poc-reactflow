@@ -1,5 +1,5 @@
 import './App.css'
-import {Controls, ReactFlow, useEdgesState, useNodesState, useReactFlow} from "@xyflow/react";
+import {addEdge, Connection, Controls, Edge, ReactFlow, useEdgesState, useNodesState, useReactFlow} from "@xyflow/react";
 import '@xyflow/react/dist/style.css';
 import React, {RefObject, useCallback, useEffect, useRef, useState} from 'react';
 import Sidebar from "./components/Sidebar.tsx";
@@ -23,11 +23,16 @@ function App() {
     const wsRef: RefObject<null | WebSocket> = useRef(null);
     const [isConnected, setConnected] = useState(false);
     const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
-    const [edges, , onEdgesChange] = useEdgesState([]);
+    const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
     const { screenToFlowPosition } = useReactFlow();
     const [type] = useDnD();
 
-
+    const onConnect = useCallback(
+        (params: Connection): void => {
+            setEdges((prevEdges: Edge[]) => addEdge(params, prevEdges));
+        },
+        [setEdges]
+    );
     const onDrop = useCallback(
         (event: React.DragEvent<HTMLDivElement>) => {
             event.preventDefault();
@@ -91,6 +96,7 @@ function App() {
                           onNodesChange={onNodesChange}
                           onEdgesChange={onEdgesChange}
                           onDragOver={onDragOver}
+                          onConnect={onConnect}
                       >
                           <Controls/>
                       </ReactFlow>
