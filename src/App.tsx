@@ -54,9 +54,19 @@ function App() {
             });
 
             if (wsRef.current)
-                wsRef.current.send(JSON.stringify({ type: 'create_shape', shape: {x: position.x, y: position.y, draggable: false, isDragging: false, rotation: 0}}));
+                wsRef.current.send(JSON.stringify({ type: 'create_shape', shape: {x: position.x, y: position.y, draggable: true, isDragging: false, rotation: 0}}));
         },
         [screenToFlowPosition, type],
+    );
+
+    const onNodeDrag = useCallback(
+        (_event: React.MouseEvent, node: Node) => {
+            if (wsRef.current?.readyState === WebSocket.OPEN) {
+                const updatedShape = { id: node.id, x: node.position.x, y: node.position.y, rotation: 0, isDragging: false, draggable: true };
+                wsRef.current.send(JSON.stringify({type: 'update_shape', shape: updatedShape}));
+            }
+        },
+        []
     );
 
     const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
@@ -79,19 +89,29 @@ function App() {
 
         ws.onmessage = (event: MessageEvent) => {
             const data = JSON.parse(event.data);
-            const position = {x: data.shape.x, y: data.shape.y};
+            const position = { x: data.shape.x, y: data.shape.y };
             const id = data.shape.id;
 
-            const newNode = {
-                id: id,
-                position: position,
-                type: 'default',
-                data: { label: 'git clone' },
-                style: {height: 40, width: 70}
-            };
+            setNodes((nds) => {
+                const exists = nds.some((node) => node.id === id);
 
-            setNodes((nds) => nds.concat(newNode));
-        }
+                if (exists) {
+                    return nds.map((node) =>
+                        node.id === id ? { ...node, position } : node
+                    );
+                } else {
+                    const newNode = {
+                        id,
+                        position,
+                        type: 'default',
+                        data: { label: 'git clone' },
+                        style: { height: 40, width: 70 },
+                    };
+
+                    return nds.concat(newNode);
+                }
+            });
+        };
 
         return () => {
             if (wsRef.current && isConnected) {
@@ -114,6 +134,7 @@ function App() {
                           onEdgesChange={onEdgesChange}
                           onDragOver={onDragOver}
                           onConnect={onConnect}
+                          onNodeDrag={onNodeDrag}
                           fitView
                       >
                           <Controls/>
