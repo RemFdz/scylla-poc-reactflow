@@ -1,5 +1,15 @@
 import './App.css'
-import {addEdge, Connection, Controls, Edge, ReactFlow, useEdgesState, useNodesState, useReactFlow} from "@xyflow/react";
+import {
+    addEdge,
+    Background,
+    Connection,
+    Controls,
+    Edge,
+    ReactFlow,
+    useEdgesState,
+    useNodesState,
+    useReactFlow
+} from "@xyflow/react";
 import '@xyflow/react/dist/style.css';
 import React, {RefObject, useCallback, useEffect, useRef, useState} from 'react';
 import Sidebar from "./components/Sidebar.tsx";
@@ -87,8 +97,8 @@ function App() {
   return (
       <div className={"dndflow"} style={{display: 'flex', alignItems: 'center', flexDirection: 'column', width: '100%', height: '100%'}}>
           {isConnected ? <p style={{color: 'green'}}>Connected</p>: <p style={{color: 'red'}}>Disconnected</p>}
-          <div style={{display: 'flex', flexDirection: 'row', width: '100%', height: '100%'}}>
-              <div style={{width: '75%', height: '75%', border: 'solid 1px black'}}>
+          <div style={{display: 'flex', flexDirection: 'row', width: '75%', height: '75%'}}>
+              <div style={{width: '100%', height: '100%', border: 'solid 1px black'}}>
                       <ReactFlow
                           onDrop={onDrop}
                           nodes={nodes}
@@ -97,8 +107,10 @@ function App() {
                           onEdgesChange={onEdgesChange}
                           onDragOver={onDragOver}
                           onConnect={onConnect}
+                          fitView
                       >
                           <Controls/>
+                          <Background/>
                       </ReactFlow>
               </div>
               <Sidebar/>
