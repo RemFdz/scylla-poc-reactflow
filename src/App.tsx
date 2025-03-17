@@ -27,9 +27,6 @@ type Node = {
 }
 
 function App() {
-    let id = 0;
-    const getId = () => `dndnode_${id++}`;
-
     const wsRef: RefObject<null | WebSocket> = useRef(null);
     const [isConnected, setConnected] = useState(false);
     const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
@@ -55,15 +52,9 @@ function App() {
                 x: event.clientX,
                 y: event.clientY,
             });
-            const newNode = {
-                id: getId(),
-                type,
-                position,
-                data: { label: `${type}` },
-                style: {height: 40, width: 70}
-            };
 
-            setNodes((nds) => nds.concat(newNode));
+            if (wsRef.current)
+                wsRef.current.send(JSON.stringify({ type: 'create_shape', shape: {x: position.x, y: position.y, draggable: false, isDragging: false, rotation: 0}}));
         },
         [screenToFlowPosition, type],
     );
@@ -85,6 +76,22 @@ function App() {
         }
         ws.onerror = (e) => console.error('WS error: ', e);
         ws.onclose = () => console.log('WS connection closed');
+
+        ws.onmessage = (event: MessageEvent) => {
+            const data = JSON.parse(event.data);
+            const position = {x: data.shape.x, y: data.shape.y};
+            const id = data.shape.id;
+
+            const newNode = {
+                id: id,
+                position: position,
+                type: 'default',
+                data: { label: 'git clone' },
+                style: {height: 40, width: 70}
+            };
+
+            setNodes((nds) => nds.concat(newNode));
+        }
 
         return () => {
             if (wsRef.current && isConnected) {
