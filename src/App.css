@@ -137,7 +137,8 @@
   z-index: 10;
   width: 3px;
   height: 3px;
-  background-color: #38A3A5;
+  background-color: white;
+  border: 1px solid #38A3A5;
 }
 
 .react-flow__handle-right.custom-handle {
@@ -147,7 +148,8 @@
 
   width: 3px;
   height: 3px;
-  background-color: #38A3A5;
+  background-color: white;
+  border: 1px solid #38A3A5;
 }
 
 .react-flow__node-pretty .wrapper {
