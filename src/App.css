@@ -108,7 +108,6 @@
 
 .react-flow__node-pretty .inner {
   background: white;
-  padding: 16px 20px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -117,18 +116,54 @@
   border-radius: var(--node-border-radius);
 }
 
+.custom-handle {
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+
+  width: 12px;
+  height: 12px;
+  background-color: #00FAFF;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+/* Pour le handle à gauche */
+.react-flow__handle-left.custom-handle {
+  position: absolute;
+  top: 40%;
+  z-index: 10;
+  width: 3px;
+  height: 3px;
+  background-color: #38A3A5;
+}
+
+.react-flow__handle-right.custom-handle {
+  position: absolute;
+  top: 40%;
+  z-index: 10;
+
+  width: 3px;
+  height: 3px;
+  background-color: #38A3A5;
+}
+
 .react-flow__node-pretty .wrapper {
+  width: 80px;
+  height: 80px;
   overflow: hidden;
   display: flex;
-  padding: 3px;
+  padding: 2px;
   position: relative;
-  border-radius: 20px;
+  border-radius: 18px;
 }
 
 .gradient:before {
   content: '';
   position: absolute;
-  padding-bottom: 130%;
+  padding-bottom: 120%;
   width: 130%;
   background: #38A3A5;
   left: 50%;

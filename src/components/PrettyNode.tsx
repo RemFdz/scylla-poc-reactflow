@@ -26,10 +26,10 @@ const PrettyNode =  memo(({data}: NodeProps<Node<PrettyNodeData>>) => {
                             <GitIcon size={33}/>
                         </div>
                     </div>
-                    <Handle type="target" position={Position.Left}/>
-                    <Handle type="source" position={Position.Right}/>
                 </div>
             </div>
+            <Handle className="custom-handle" type="target" position={Position.Left}/>
+            <Handle className="custom-handle" type="source" position={Position.Right}/>
             <div className="title">{data.title}</div>
         </>
     );
