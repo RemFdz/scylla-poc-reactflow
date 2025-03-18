@@ -147,6 +147,12 @@ function App() {
         pretty: PrettyNode,
     };
 
+    const onMove = useCallback((event: MouseEvent | TouchEvent | null) => {
+        if (event && event instanceof MouseEvent) {
+            onMouseMove(event as unknown as React.MouseEvent);
+        }
+    }, [onMouseMove])
+
   return (
       <div className={"dndflow"} style={{display: 'flex', alignItems: 'center', flexDirection: 'column', width: '100%', height: '100%'}}>
           {isConnected ? <p style={{color: 'green'}}>Connected</p>: <p style={{color: 'red'}}>Disconnected</p>}
@@ -162,6 +168,7 @@ function App() {
                       onConnect={onConnect}
                       onNodeDrag={onNodeDrag}
                       onMouseMove={onMouseMove}
+                      onMove={onMove}
                       nodeTypes={nodeTypes}
                       proOptions={{ hideAttribution: true }}
                       fitView
