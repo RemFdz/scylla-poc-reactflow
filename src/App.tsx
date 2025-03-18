@@ -12,7 +12,7 @@ import {
     useReactFlow
 } from "@xyflow/react";
 import '@xyflow/react/dist/style.css';
-import React, {RefObject, useCallback, useEffect, useRef, useState} from 'react';
+import React, { RefObject, useCallback, useEffect, useRef, useState} from 'react';
 import Sidebar from "./components/Sidebar.tsx";
 import {useDnD} from "./providers/DndProvider.tsx";
 
@@ -66,6 +66,11 @@ function App() {
         event.preventDefault();
         event.dataTransfer.dropEffect = 'move';
     }, []);
+
+
+    const onMouseMove = useCallback((event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        const canvasPosition = screenToFlowPosition({x: event.clientX, y: event.clientY});
+    }, [screenToFlowPosition]);
 
 
     useEffect(() => {
@@ -132,6 +137,7 @@ function App() {
                       onDragOver={onDragOver}
                       onConnect={onConnect}
                       onNodeDrag={onNodeDrag}
+                      onMouseMove={onMouseMove}
                       nodeTypes={nodeTypes}
                       proOptions={{ hideAttribution: true }}
                       fitView

@@ -120,6 +120,9 @@ impl DrawServer {
                         let command = to_string(&command)?;
                         self.send_message(command).await;
                     }
+                    CommandType::UpdateMouth => {
+                        println!("mouth update");
+                    }
                 },
             }
         }

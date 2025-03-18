@@ -23,6 +23,7 @@ pub enum CommandType {
     UpdateShape,
     CreateShape,
     ClearShapes,
+    UpdateMouth
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
