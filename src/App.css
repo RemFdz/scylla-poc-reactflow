@@ -62,23 +62,24 @@
 
 .dndflow .dndnode {
   height: 40px;
-  width: 70px;
+  width: 40px;
   padding: 4px;
-  border: 1px solid #1a192b;
-  border-radius: 2px;
-  margin-bottom: 10px;
+  border: 3px solid #38A3A5;
+  border-radius: 15px;
+  margin-bottom: 1px;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: grab;
 }
 
-.dndflow .dndnode.input {
-  border-color: #0041d0;
-}
-
-.dndflow .dndnode.output {
-  border-color: #ff0072;
+.dndflow .dndnode-label {
+  margin-top: -2px;
+  height: 40px;
+  width:  70px;
+  padding: 1px;
+  display: flex;
+  cursor: grab;
 }
 
 .dndflow .reactflow-wrapper {
@@ -102,47 +103,41 @@
 }
 
 .react-flow {
-  --node-border-radius: 10px;
+  --node-border-radius: 17px;
 }
 
 .react-flow__node-pretty .inner {
   background: white;
   padding: 16px 20px;
-  border-radius: var(--node-border-radius);
   display: flex;
   flex-direction: column;
   justify-content: center;
   flex-grow: 1;
   position: relative;
+  border-radius: var(--node-border-radius);
 }
 
 .react-flow__node-pretty .wrapper {
   overflow: hidden;
   display: flex;
-  padding: 2px;
+  padding: 3px;
   position: relative;
-  border-radius: var(--node-border-radius);
-  flex-grow: 1;
+  border-radius: 20px;
 }
 
 .gradient:before {
   content: '';
   position: absolute;
-  padding-bottom: calc(100% * 1.41421356237);
-  width: calc(100% * 1.41421356237);
-  background: conic-gradient(
-          from -160deg at 50% 50%,
-          #00FAFF 0deg,
-          #22577A 240deg,
-          #00FAFF 360deg
-  );
+  padding-bottom: 130%;
+  width: 130%;
+  background: #38A3A5;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  border-radius: 100%;
+  border-radius: 20px;
 }
 
-.react-flow__node-pretty.selected .wrapper.gradient:before {
+.react-flow__node-pretty.selected .gradient:before {
   content: '';
   background: conic-gradient(
           from -160deg at 50% 50%,

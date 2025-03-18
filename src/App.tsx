@@ -80,6 +80,7 @@ function App() {
         ws.onerror = (e) => console.error('WS error: ', e);
         ws.onclose = () => console.log('WS connection closed');
 
+        //TODO: the server should give the type and we should have a map of data (like title depending on the type)
         ws.onmessage = (event: MessageEvent) => {
             const data = JSON.parse(event.data);
             const position = { x: data.shape.x, y: data.shape.y };
@@ -97,7 +98,7 @@ function App() {
                         id,
                         position,
                         type: 'pretty',
-                        data: { title: 'git clone' },
+                        data: { title: 'Git clone' },
                     };
 
                     return nds.concat(newNode);

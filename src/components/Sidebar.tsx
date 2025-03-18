@@ -1,5 +1,6 @@
 import {useDnD} from "../providers/DndProvider.tsx";
 import React from "react";
+import {GitIcon} from "./PrettyNode.tsx";
 
 const Sidebar = () => {
     const [, setType] = useDnD();
@@ -14,8 +15,11 @@ const Sidebar = () => {
     return (
         <aside>
             <div className="description">You can drag these nodes in the workflow on the left.</div>
-            <div className="dndnode input" onDragStart={(event) => onDragStart(event, 'git clone')} draggable>
-                Git clone
+            <div>
+                <div className="dndnode input" onDragStart={(event) => onDragStart(event, 'git clone')} draggable>
+                    <GitIcon size={30}></GitIcon>
+                </div>
+                <p className="dndnode-label">Git clone</p>
             </div>
         </aside>
     );
