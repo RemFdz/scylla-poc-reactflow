@@ -132,6 +132,7 @@ function App() {
                       onConnect={onConnect}
                       onNodeDrag={onNodeDrag}
                       nodeTypes={nodeTypes}
+                      proOptions={{ hideAttribution: true }}
                       fitView
                   >
                       <Controls/>
