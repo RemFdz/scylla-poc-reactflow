@@ -165,7 +165,7 @@
 .gradient:before {
   content: '';
   position: absolute;
-  padding-bottom: 120%;
+  padding-bottom: 130%;
   width: 130%;
   background: #38A3A5;
   left: 50%;
