@@ -175,8 +175,8 @@ function App() {
                   >
                       <Controls/>
                       <Background/>
-                      {Array.from(collaborators).map(([, pos], index) => (
-                          <Collaborator key={index} x={pos.x} y={pos.y} />
+                      {Array.from(collaborators).map(([uuid, pos], index) => (
+                          <Collaborator key={index} x={pos.x} y={pos.y} uuid={uuid} />
                       ))}
                   </ReactFlow>
               </div>
