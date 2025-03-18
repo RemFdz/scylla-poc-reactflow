@@ -70,6 +70,9 @@ function App() {
 
     const onMouseMove = useCallback((event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         const canvasPosition = screenToFlowPosition({x: event.clientX, y: event.clientY});
+        if (wsRef.current) {
+            wsRef.current.send(JSON.stringify({type: 'update_mouse'}));
+        }
     }, [screenToFlowPosition]);
 
 
