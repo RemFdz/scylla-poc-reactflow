@@ -5,6 +5,7 @@ import {
     Connection,
     Controls,
     Edge,
+    type Node,
     ReactFlow,
     useEdgesState,
     useNodesState,
@@ -15,21 +16,13 @@ import React, {RefObject, useCallback, useEffect, useRef, useState} from 'react'
 import Sidebar from "./components/Sidebar.tsx";
 import {useDnD} from "./providers/DndProvider.tsx";
 
-type Node = {
-  id: string;
-  position: {
-      x: number;
-      y: number;
-  }
-  data: {
-      label: string;
-  }
-}
+import PrettyNode, { type PrettyNodeData } from './components/PrettyNode.tsx';
+
 
 function App() {
     const wsRef: RefObject<null | WebSocket> = useRef(null);
     const [isConnected, setConnected] = useState(false);
-    const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
+    const [nodes, setNodes, onNodesChange] = useNodesState<Node<PrettyNodeData>>([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
     const { screenToFlowPosition } = useReactFlow();
     const [type] = useDnD();
@@ -100,12 +93,11 @@ function App() {
                         node.id === id ? { ...node, position } : node
                     );
                 } else {
-                    const newNode = {
+                    const newNode: Node<PrettyNodeData> = {
                         id,
                         position,
-                        type: 'default',
-                        data: { label: 'git clone' },
-                        style: { height: 40, width: 70 },
+                        type: 'pretty',
+                        data: { title: 'git clone' },
                     };
 
                     return nds.concat(newNode);
@@ -121,25 +113,30 @@ function App() {
         }
     });
 
+    const nodeTypes = {
+        pretty: PrettyNode,
+    };
+
   return (
       <div className={"dndflow"} style={{display: 'flex', alignItems: 'center', flexDirection: 'column', width: '100%', height: '100%'}}>
           {isConnected ? <p style={{color: 'green'}}>Connected</p>: <p style={{color: 'red'}}>Disconnected</p>}
           <div style={{display: 'flex', flexDirection: 'row', width: '75%', height: '75%'}}>
               <div style={{width: '100%', height: '100%', border: 'solid 1px black'}}>
-                      <ReactFlow
-                          onDrop={onDrop}
-                          nodes={nodes}
-                          edges={edges}
-                          onNodesChange={onNodesChange}
-                          onEdgesChange={onEdgesChange}
-                          onDragOver={onDragOver}
-                          onConnect={onConnect}
-                          onNodeDrag={onNodeDrag}
-                          fitView
-                      >
-                          <Controls/>
-                          <Background/>
-                      </ReactFlow>
+                  <ReactFlow
+                      onDrop={onDrop}
+                      nodes={nodes}
+                      edges={edges}
+                      onNodesChange={onNodesChange}
+                      onEdgesChange={onEdgesChange}
+                      onDragOver={onDragOver}
+                      onConnect={onConnect}
+                      onNodeDrag={onNodeDrag}
+                      nodeTypes={nodeTypes}
+                      fitView
+                  >
+                      <Controls/>
+                      <Background/>
+                  </ReactFlow>
               </div>
               <Sidebar/>
           </div>

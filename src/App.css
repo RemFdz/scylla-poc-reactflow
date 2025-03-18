@@ -100,3 +100,64 @@
     max-width: 250px;
   }
 }
+
+.react-flow {
+  --node-border-radius: 10px;
+}
+
+.react-flow__node-pretty .inner {
+  background: white;
+  padding: 16px 20px;
+  border-radius: var(--node-border-radius);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-grow: 1;
+  position: relative;
+}
+
+.react-flow__node-pretty .wrapper {
+  overflow: hidden;
+  display: flex;
+  padding: 2px;
+  position: relative;
+  border-radius: var(--node-border-radius);
+  flex-grow: 1;
+}
+
+.gradient:before {
+  content: '';
+  position: absolute;
+  padding-bottom: calc(100% * 1.41421356237);
+  width: calc(100% * 1.41421356237);
+  background: conic-gradient(
+          from -160deg at 50% 50%,
+          #00FAFF 0deg,
+          #22577A 240deg,
+          #00FAFF 360deg
+  );
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 100%;
+}
+
+.react-flow__node-pretty.selected .wrapper.gradient:before {
+  content: '';
+  background: conic-gradient(
+          from -160deg at 50% 50%,
+          #00FAFF 0deg,
+          #22577A 120deg,
+          #00FAFF 240deg,
+          rgba(42, 138, 246, 0) 360deg
+  );
+  animation: spinner 4s linear infinite;
+  transform: translate(-50%, -50%) rotate(0deg);
+  z-index: -1;
+}
+
+@keyframes spinner {
+  100% {
+    transform: translate(-50%, -50%) rotate(-360deg);
+  }
+}
