@@ -166,8 +166,9 @@ function App() {
       <div className={"dndflow"} style={{display: 'flex', alignItems: 'center', flexDirection: 'column', width: '100%', height: '100%'}}>
           {isConnected ? <p style={{color: 'green'}}>Connected</p>: <p style={{color: 'red'}}>Disconnected</p>}
           <div style={{display: 'flex', flexDirection: 'row', width: '75%', height: '75%'}}>
-              <div ref={reactFlowWrapper} style={{width: '100%', height: '100%', border: 'solid 1px black', cursor: 'none', overflow: 'hidden'}}>
+              <div ref={reactFlowWrapper} style={{width: '100%', height: '100%', border: 'solid 1px black', overflow: 'hidden'}}>
                   <ReactFlow
+                      className={"react-flow__renderer"}
                       onDrop={onDrop}
                       nodes={nodes}
                       edges={edges}

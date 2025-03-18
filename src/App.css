@@ -128,7 +128,6 @@
   border: 2px solid white;
 }
 
-/* Pour le handle à gauche */
 .react-flow__handle-left.custom-handle {
   position: absolute;
   top: 40%;
@@ -191,4 +190,16 @@
   100% {
     transform: translate(-50%, -50%) rotate(-360deg);
   }
+}
+
+.react-flow__pane.draggable {
+  cursor: none !important;
+}
+
+.react-flow__node.draggable {
+  cursor: none !important;
+}
+
+.react-flow__edge {
+  cursor: none !important;
 }
