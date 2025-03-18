@@ -1,4 +1,4 @@
-use crate::handler::{CommandType, Shape, WebSocketCommand};
+use crate::handler::{CommandType, MouseInfo, Shape, WebSocketCommand};
 use serde_json::to_string;
 use std::collections::HashMap;
 use std::fmt::Debug;
@@ -137,6 +137,7 @@ impl DrawServer {
                         let res = to_string(&command)?;
                         self.send_message(res).await;
                     }
+                    _ => {}
                 },
             }
         }
@@ -145,6 +146,21 @@ impl DrawServer {
 
     async fn disconnect(&mut self, conn_id: Uuid) {
         self.sessions.remove(&conn_id);
+        let mouse_info = MouseInfo {
+            x: 0.0,
+            y: 0.0,
+            conn_id: Some(conn_id)
+        };
+        let command = WebSocketCommand {
+            r#type: CommandType::Disconnect,
+            shape: None,
+            mouse_info: Some(mouse_info),
+        };
+
+        let msg = to_string(&command).unwrap();
+        for (_, tx) in &self.sessions {
+            tx.send(msg.clone()).unwrap();
+        }
     }
 }
 

@@ -27,6 +27,8 @@ function App() {
     const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
     const { screenToFlowPosition, flowToScreenPosition } = useReactFlow();
     const [type] = useDnD();
+
+    //TODO: replace this by an object because a Map is not optimized with useState (to avoid large quantity of copy)
     const [collaborators, setCollaborators] = useState(new Map<string, {x: number, y: number}>)
     const reactFlowWrapper = useRef<HTMLDivElement | null>(null);
 
@@ -92,6 +94,7 @@ function App() {
         ws.onclose = () => console.log('WS connection closed');
 
         //TODO: the server should give the type and we should have a map of data (like title depending on the type)
+        // pretty should not be a type, all nodes should be pretty but the type should be something like "git clone"
         ws.onmessage = (event: MessageEvent) => {
             const data = JSON.parse(event.data);
 
@@ -132,6 +135,12 @@ function App() {
                         return;
                     setCollaborators(new Map(collaborators.set(conn_id, adjustedPos)));
                 }
+            }
+
+            if (data.type === 'disconnect') {
+                console.log("disconnect")
+                collaborators.delete(data.mouse_info.conn_id);
+                setCollaborators(new Map(collaborators));
             }
         };
 

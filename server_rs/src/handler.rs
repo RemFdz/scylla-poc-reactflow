@@ -30,7 +30,8 @@ pub enum CommandType {
     UpdateShape,
     CreateShape,
     ClearShapes,
-    UpdateMouse
+    UpdateMouse,
+    Disconnect
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
