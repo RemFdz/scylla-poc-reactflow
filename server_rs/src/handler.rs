@@ -17,13 +17,20 @@ pub struct Shape {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct MouseInfo {
+    pub conn_id: Option<Uuid>,
+    pub x: f64,
+    pub y: f64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum CommandType {
     Init,
     UpdateShape,
     CreateShape,
     ClearShapes,
-    UpdateMouth
+    UpdateMouse
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -31,6 +38,7 @@ pub struct WebSocketCommand {
     #[serde(rename = "type")]
     pub r#type: CommandType,
     pub shape: Option<Shape>,
+    pub mouse_info: Option<MouseInfo>
 }
 
 fn handle_message_from_ws(

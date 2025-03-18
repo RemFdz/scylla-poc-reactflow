@@ -1,6 +1,7 @@
 use crate::handler::{CommandType, Shape, WebSocketCommand};
 use serde_json::to_string;
 use std::collections::HashMap;
+use std::fmt::Debug;
 use tokio::io;
 use tokio::sync::{mpsc, oneshot};
 use uuid::Uuid;
@@ -47,6 +48,7 @@ impl DrawServer {
             let command = WebSocketCommand {
                 r#type: CommandType::CreateShape,
                 shape: Some(shape.clone()),
+                mouse_info: None
             };
             let shape_str = to_string(&command).unwrap();
             tx.send(shape_str).unwrap()
@@ -73,7 +75,7 @@ impl DrawServer {
                     self.disconnect(conn).await;
                 }
                 Command::Action {
-                    conn_id : _uuid,
+                    conn_id,
                     web_socket_command,
                 } => match web_socket_command.r#type {
                     CommandType::Init => {
@@ -94,6 +96,7 @@ impl DrawServer {
                         let command = WebSocketCommand {
                             r#type: CommandType::UpdateShape,
                             shape: Some(shape.clone()),
+                            mouse_info: None
                         };
                         self.send_message(to_string(&command)?).await;
                     }
@@ -107,6 +110,7 @@ impl DrawServer {
                         let command = WebSocketCommand {
                             r#type: CommandType::CreateShape,
                             shape: Some(new_shape.clone()),
+                            mouse_info: None
                         };
                         let res = to_string(&command)?;
                         self.send_message(res).await;
@@ -116,12 +120,22 @@ impl DrawServer {
                         let command = WebSocketCommand {
                             r#type: CommandType::ClearShapes,
                             shape: None,
+                            mouse_info: None
                         };
                         let command = to_string(&command)?;
                         self.send_message(command).await;
                     }
-                    CommandType::UpdateMouth => {
-                        println!("mouth update");
+                    CommandType::UpdateMouse => {
+                        let mut mouse_info = web_socket_command.mouse_info.unwrap();
+                        mouse_info.conn_id = Some(conn_id);
+
+                        let command = WebSocketCommand {
+                            r#type: CommandType::UpdateMouse,
+                            shape: None,
+                            mouse_info: Some(mouse_info)
+                        };
+                        let res = to_string(&command)?;
+                        self.send_message(res).await;
                     }
                 },
             }
