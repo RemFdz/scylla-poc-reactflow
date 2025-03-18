@@ -103,7 +103,7 @@
 }
 
 .react-flow {
-  --node-border-radius: 17px;
+  --node-border-radius: 15px;
 }
 
 .react-flow__node-pretty .inner {
@@ -159,7 +159,7 @@
   display: flex;
   padding: 2px;
   position: relative;
-  border-radius: 18px;
+  border-radius: calc(var(--node-border-radius) + 1px);
 }
 
 .gradient:before {
