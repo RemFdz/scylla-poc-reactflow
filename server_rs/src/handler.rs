@@ -24,6 +24,14 @@ pub struct MouseInfo {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct EdgeInfo {
+    pub source: String,
+    pub source_handle: String,
+    pub target: String,
+    pub target_handle: String
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum CommandType {
     Init,
@@ -31,6 +39,7 @@ pub enum CommandType {
     CreateShape,
     ClearShapes,
     UpdateMouse,
+    CreateEdge,
     Disconnect
 }
 
@@ -39,7 +48,8 @@ pub struct WebSocketCommand {
     #[serde(rename = "type")]
     pub r#type: CommandType,
     pub shape: Option<Shape>,
-    pub mouse_info: Option<MouseInfo>
+    pub mouse_info: Option<MouseInfo>,
+    pub edge_info: Option<EdgeInfo>
 }
 
 fn handle_message_from_ws(

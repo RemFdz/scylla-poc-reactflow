@@ -12,13 +12,13 @@ import {
     useReactFlow
 } from "@xyflow/react";
 import '@xyflow/react/dist/style.css';
-import React, { RefObject, useCallback, useEffect, useRef, useState} from 'react';
+import React, {RefObject, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import Sidebar from "./components/Sidebar.tsx";
 import {useDnD} from "./providers/DndProvider.tsx";
 
-import PrettyNode, { type PrettyNodeData } from './components/PrettyNode.tsx';
+import PrettyNode, {type PrettyNodeData} from './components/PrettyNode.tsx';
 import Collaborator from "./components/Collaborator.tsx";
-
+import debounce from 'lodash.debounce';
 
 function App() {
     const wsRef: RefObject<null | WebSocket> = useRef(null);
@@ -28,16 +28,17 @@ function App() {
     const { screenToFlowPosition, flowToScreenPosition } = useReactFlow();
     const [type] = useDnD();
 
-    //TODO: replace this by an object because a Map is not optimized with useState (to avoid large quantity of copy)
-    const [collaborators, setCollaborators] = useState(new Map<string, {x: number, y: number}>)
+    const [collaborators, setCollaborators] = useState<Record<string, { x: number, y: number }>>({});
     const reactFlowWrapper = useRef<HTMLDivElement | null>(null);
 
     const onConnect = useCallback(
         (params: Connection): void => {
-            setEdges((prevEdges: Edge[]) => addEdge(params, prevEdges));
+            if (wsRef.current)
+                wsRef.current.send(JSON.stringify({type: "create_edge", edge_info: {source: params.source, source_handle: params.sourceHandle, target: params.target, target_handle: params.targetHandle}}))
         },
-        [setEdges]
+        []
     );
+
     const onDrop = useCallback(
         (event: React.DragEvent<HTMLDivElement>) => {
             event.preventDefault();
@@ -80,6 +81,74 @@ function App() {
         event.dataTransfer.dropEffect = 'move';
     }, []);
 
+    const debouncedSetCollaborators = useMemo(() =>
+        debounce((conn_id: number, adjustedPos: {x: number, y: number}) => {
+            setCollaborators(prev => ({
+                ...prev,
+                [conn_id]: adjustedPos,
+            }));
+        }, 1), []);
+
+    const handleServerMessage = useCallback((event: MessageEvent) => {
+        const data = JSON.parse(event.data);
+
+        if (data.type === 'update_shape' || data.type == 'create_shape') {
+            const position = {x: data.shape.x, y: data.shape.y};
+            const id = data.shape.id;
+
+            setNodes((nds) => {
+                const exists = nds.some((node) => node.id === id);
+
+                if (exists) {
+                    return nds.map((node) =>
+                        node.id === id ? {...node, position} : node
+                    );
+                } else {
+                    const newNode: Node<PrettyNodeData> = {
+                        id,
+                        position,
+                        type: 'pretty',
+                        data: {title: 'Git clone'}
+                    };
+
+                    return nds.concat(newNode);
+                }
+            });
+        }
+
+        if (data.type === 'update_mouse') {
+            if (reactFlowWrapper.current) {
+                const bounds = reactFlowWrapper.current.getBoundingClientRect();
+                const position = flowToScreenPosition({x: data.mouse_info.x, y: data.mouse_info.y});
+                const adjustedPos = {x: position.x - bounds.x, y: position.y - bounds.y}
+                const conn_id = data.mouse_info.conn_id;
+                if (!conn_id || ! position)
+                    return;
+                debouncedSetCollaborators(conn_id, adjustedPos);
+            }
+        }
+
+        if (data.type === 'create_edge') {
+            if (!data.edge_info)
+                return;
+            const params: Connection =  {
+                source: data.edge_info.source,
+                sourceHandle: data.edge_info.source_handle,
+                target: data.edge_info.target,
+                targetHandle: data.edge_info.target_handle
+            }
+            setEdges((prevEdges: Edge[]) => addEdge(params, prevEdges));
+
+        }
+
+        if (data.type === 'disconnect') {
+            setCollaborators(prev => {
+                const { [data.mouse_info.conn_id]: _, ...rest } = prev;
+                return rest;
+            });
+        }
+    }, [debouncedSetCollaborators, flowToScreenPosition, setNodes])
+
 
     useEffect(() => {
         if (wsRef.current)
@@ -91,58 +160,12 @@ function App() {
             setConnected(true);
         }
         ws.onerror = (e) => console.error('WS error: ', e);
-        ws.onclose = () => console.log('WS connection closed');
-
-        //TODO: the server should give the type and we should have a map of data (like title depending on the type)
-        // pretty should not be a type, all nodes should be pretty but the type should be something like "git clone"
-        ws.onmessage = (event: MessageEvent) => {
-            const data = JSON.parse(event.data);
-
-            if (!data || !data.type)
-                return;
-
-            if (data.type === 'update_shape' || data.type === 'create_shape') {
-                const position = {x: data.shape.x, y: data.shape.y};
-                const id = data.shape.id;
-
-                setNodes((nds) => {
-                    const exists = nds.some((node) => node.id === id);
-
-                    if (exists) {
-                        return nds.map((node) =>
-                            node.id === id ? {...node, position} : node
-                        );
-                    } else {
-                        const newNode: Node<PrettyNodeData> = {
-                            id,
-                            position,
-                            type: 'pretty',
-                            data: {title: 'Git clone'},
-                        };
-
-                        return nds.concat(newNode);
-                    }
-                });
-            }
-
-            if (data.type === 'update_mouse') {
-                if (reactFlowWrapper.current) {
-                    const bounds = reactFlowWrapper.current.getBoundingClientRect();
-                    const position = flowToScreenPosition({x: data.mouse_info.x, y: data.mouse_info.y});
-                    const adjustedPos = {x: position.x - bounds.x, y: position.y - bounds.y}
-                    const conn_id = data.mouse_info.conn_id;
-                    if (!conn_id || ! position)
-                        return;
-                    setCollaborators(new Map(collaborators.set(conn_id, adjustedPos)));
-                }
-            }
-
-            if (data.type === 'disconnect') {
-                console.log("disconnect")
-                collaborators.delete(data.mouse_info.conn_id);
-                setCollaborators(new Map(collaborators));
-            }
+        ws.onclose = () => {
+            setConnected(false);
+            wsRef.current = null;
+            console.log('WS connection closed');
         };
+        ws.onmessage = handleServerMessage;
 
         return () => {
             if (wsRef.current && isConnected) {
@@ -150,7 +173,7 @@ function App() {
                 wsRef.current = null;
             }
         }
-    });
+    }, [handleServerMessage, isConnected]);
 
     const nodeTypes = {
         pretty: PrettyNode,
@@ -185,8 +208,8 @@ function App() {
                   >
                       <Controls/>
                       <Background/>
-                      {Array.from(collaborators).map(([uuid, pos], index) => (
-                          <Collaborator key={index} x={pos.x} y={pos.y} uuid={uuid} />
+                      {Object.entries(collaborators).map(([uuid, pos]) => (
+                          <Collaborator key={uuid} x={pos.x} y={pos.y} uuid={uuid} />
                       ))}
                   </ReactFlow>
               </div>

@@ -28,8 +28,8 @@ const PrettyNode =  memo(({data}: NodeProps<Node<PrettyNodeData>>) => {
                     </div>
                 </div>
             </div>
-            <Handle className="custom-handle" type="target" position={Position.Left}/>
-            <Handle className="custom-handle" type="source" position={Position.Right}/>
+            <Handle id={"left"} className="custom-handle" type="target" position={Position.Left} isConnectable={true}/>
+            <Handle id={"right"} className="custom-handle" type="source" position={Position.Right} isConnectable={true}/>
             <div className="title">{data.title}</div>
         </>
     );

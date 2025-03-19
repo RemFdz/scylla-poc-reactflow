@@ -1,4 +1,4 @@
-use crate::handler::{CommandType, MouseInfo, Shape, WebSocketCommand};
+use crate::handler::{CommandType, EdgeInfo, MouseInfo, Shape, WebSocketCommand};
 use serde_json::to_string;
 use std::collections::HashMap;
 use std::fmt::Debug;
@@ -10,6 +10,7 @@ pub struct DrawServer {
     cmd_rx: mpsc::UnboundedReceiver<Command>,
     sessions: HashMap<Uuid, mpsc::UnboundedSender<String>>,
     shapes: HashMap<Uuid, Shape>,
+    edges: Vec<EdgeInfo>,
 }
 
 #[derive(Debug)]
@@ -37,6 +38,7 @@ impl DrawServer {
                 cmd_rx,
                 sessions: HashMap::new(),
                 shapes: HashMap::new(),
+                edges: Vec::new()
             },
             DrawServerHandle { cmd_tx },
         )
@@ -48,10 +50,21 @@ impl DrawServer {
             let command = WebSocketCommand {
                 r#type: CommandType::CreateShape,
                 shape: Some(shape.clone()),
-                mouse_info: None
+                mouse_info: None,
+                edge_info: None
             };
             let shape_str = to_string(&command).unwrap();
             tx.send(shape_str).unwrap()
+        }
+        for edge in &self.edges {
+            let command = WebSocketCommand {
+                r#type: CommandType::CreateEdge,
+                shape: None,
+                mouse_info: None,
+                edge_info: Some(edge.clone())
+            };
+            let msg = to_string(&command).unwrap();
+            tx.send(msg).unwrap();
         }
         self.sessions.insert(new_uuid.clone(), tx);
         new_uuid
@@ -96,7 +109,8 @@ impl DrawServer {
                         let command = WebSocketCommand {
                             r#type: CommandType::UpdateShape,
                             shape: Some(shape.clone()),
-                            mouse_info: None
+                            mouse_info: None,
+                            edge_info: None
                         };
                         self.send_message(to_string(&command)?).await;
                     }
@@ -110,7 +124,8 @@ impl DrawServer {
                         let command = WebSocketCommand {
                             r#type: CommandType::CreateShape,
                             shape: Some(new_shape.clone()),
-                            mouse_info: None
+                            mouse_info: None,
+                            edge_info: None
                         };
                         let res = to_string(&command)?;
                         self.send_message(res).await;
@@ -120,21 +135,40 @@ impl DrawServer {
                         let command = WebSocketCommand {
                             r#type: CommandType::ClearShapes,
                             shape: None,
-                            mouse_info: None
+                            mouse_info: None,
+                            edge_info: None
                         };
                         let command = to_string(&command)?;
                         self.send_message(command).await;
                     }
                     CommandType::UpdateMouse => {
-                        let mut mouse_info = web_socket_command.mouse_info.unwrap();
+                        let Some(mut mouse_info) = web_socket_command.mouse_info else {
+                            continue;
+                        };
                         mouse_info.conn_id = Some(conn_id);
 
                         let command = WebSocketCommand {
                             r#type: CommandType::UpdateMouse,
                             shape: None,
-                            mouse_info: Some(mouse_info)
+                            mouse_info: Some(mouse_info),
+                            edge_info: None
                         };
                         let res = to_string(&command)?;
+                        self.send_message(res).await;
+                    }
+                    CommandType::CreateEdge => {
+                        let Some(edge_info) = web_socket_command.edge_info else {
+                            continue;
+                        };
+                        self.edges.push(edge_info.clone());
+                        let command = WebSocketCommand {
+                            r#type: CommandType::CreateEdge,
+                            shape: None,
+                            mouse_info: None,
+                            edge_info: Some(edge_info)
+                        };
+                        let res = to_string(&command)?;
+
                         self.send_message(res).await;
                     }
                     _ => {}
@@ -155,6 +189,7 @@ impl DrawServer {
             r#type: CommandType::Disconnect,
             shape: None,
             mouse_info: Some(mouse_info),
+            edge_info: None
         };
 
         let msg = to_string(&command).unwrap();

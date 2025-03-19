@@ -1,4 +1,4 @@
-import {useEffect, useRef} from "react";
+import {useEffect, useRef, useState} from "react";
 
 const CursorIcon = ({color} : {color: string}) => {
     return (
@@ -39,6 +39,7 @@ const CursorIcon = ({color} : {color: string}) => {
 
 const Collaborator = (props: { x: number, y: number, uuid: string }) => {
     const color = useRef<string | null>(null);
+    const [pos, setPos] = useState<{x: number, y: number}>({x: 0, y: 0})
 
     const generateColorFromUUID = (uuid: string): string => {
         const hash = Array.from(uuid.replace(/-/g, '')).reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -52,13 +53,17 @@ const Collaborator = (props: { x: number, y: number, uuid: string }) => {
             color.current = generateColorFromUUID(props.uuid);
     }, [props.uuid]);
 
+    useEffect(() => {
+        setPos({x: props.x - 10, y: props.y - 10})
+    }, [props.x, props.y]);
+
     return (
 
         <div
             style={{
                 position: 'absolute',
-                left: `${props.x}px`,
-                top: `${props.y}px`,
+                left: `${pos.x}px`,
+                top: `${pos.y}px`,
                 pointerEvents: 'none',
                 zIndex: 10
             }}
