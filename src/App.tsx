@@ -19,6 +19,7 @@ import {useDnD} from "./providers/DndProvider.tsx";
 import PrettyNode, {type PrettyNodeData} from './components/PrettyNode.tsx';
 import Collaborator from "./components/Collaborator.tsx";
 import debounce from 'lodash.debounce';
+import NodeInfo from "./components/NodeInfo.tsx";
 
 function App() {
     const wsRef: RefObject<null | WebSocket> = useRef(null);
@@ -26,6 +27,7 @@ function App() {
     const [nodes, setNodes, onNodesChange] = useNodesState<Node<PrettyNodeData>>([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
     const { screenToFlowPosition, flowToScreenPosition } = useReactFlow();
+    const [nodeData, setNodeData] = useState<Node<PrettyNodeData>| null>(null);
     const [type] = useDnD();
 
     const [collaborators, setCollaborators] = useState<Record<string, { x: number, y: number }>>({});
@@ -34,7 +36,12 @@ function App() {
     const onConnect = useCallback(
         (params: Connection): void => {
             if (wsRef.current)
-                wsRef.current.send(JSON.stringify({type: "create_edge", edge_info: {source: params.source, source_handle: params.sourceHandle, target: params.target, target_handle: params.targetHandle}}))
+                wsRef.current.send(JSON.stringify({type: "create_edge", edge_info: {
+                    source: params.source,
+                    source_handle: params.sourceHandle,
+                    target: params.target,
+                    target_handle: params.targetHandle
+                }}));
         },
         []
     );
@@ -89,6 +96,7 @@ function App() {
             }));
         }, 1), []);
 
+    //TODO: refactor this function into a handler's map of key type string and value function to improve readability
     const handleServerMessage = useCallback((event: MessageEvent) => {
         const data = JSON.parse(event.data);
 
@@ -108,7 +116,7 @@ function App() {
                         id,
                         position,
                         type: 'pretty',
-                        data: {title: 'Git clone'}
+                        data: {title: 'Git clone', description: 'Clone a git repository', code: "git clone [repository_url]"}
                     };
 
                     return nds.concat(newNode);
@@ -143,6 +151,7 @@ function App() {
 
         if (data.type === 'disconnect') {
             setCollaborators(prev => {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { [data.mouse_info.conn_id]: _, ...rest } = prev;
                 return rest;
             });
@@ -185,6 +194,10 @@ function App() {
         }
     }, [onMouseMove])
 
+    const onNodeClick = (_: React.MouseEvent, node: Node<PrettyNodeData>) => {
+        setNodeData(node);
+    };
+
   return (
       <div className={"dndflow"} style={{display: 'flex', alignItems: 'center', flexDirection: 'column', width: '100%', height: '100%'}}>
           {isConnected ? <p style={{color: 'green'}}>Connected</p>: <p style={{color: 'red'}}>Disconnected</p>}
@@ -201,6 +214,8 @@ function App() {
                       onConnect={onConnect}
                       onNodeDrag={onNodeDrag}
                       onMouseMove={onMouseMove}
+                      onNodeDoubleClick={onNodeClick}
+                      onPaneClick={() => setNodeData(null)}
                       onMove={onMove}
                       nodeTypes={nodeTypes}
                       proOptions={{ hideAttribution: true }}
@@ -211,6 +226,7 @@ function App() {
                       {Object.entries(collaborators).map(([uuid, pos]) => (
                           <Collaborator key={uuid} x={pos.x} y={pos.y} uuid={uuid} />
                       ))}
+                      {nodeData !== null ? <NodeInfo nodeData={ nodeData }/> : <></>}
                   </ReactFlow>
               </div>
               <Sidebar/>

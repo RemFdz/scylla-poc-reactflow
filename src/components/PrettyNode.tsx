@@ -4,6 +4,8 @@ import { Handle, Position, type Node, type NodeProps } from '@xyflow/react';
 
 export type PrettyNodeData = {
     title: string;
+    description: string;
+    code: string;
 };
 
 export const GitIcon = ({ size = 64 }: { size?: number }) => {

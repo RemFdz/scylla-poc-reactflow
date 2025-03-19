@@ -203,3 +203,66 @@
 .react-flow__edge {
   cursor: none !important;
 }
+
+.code-text {
+  font-family: 'Bricolage Grotesque', system-ui;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 17px;
+}
+
+.code-container {
+  padding: 5px;
+  width: 80%;
+  display: flex;
+  justify-content: center;
+  background: #F6F6F6;
+  box-sizing: border-box;
+  border: 1px solid #D2D6DB;
+  border-radius: 15px;
+}
+
+.description-container {
+  width: 80%;
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+  background: #F6F6F6;
+  border: 1px solid #D2D6DB;
+  border-radius: 15px;
+}
+
+.description {
+  font-family: 'Bricolage Grotesque', system-ui;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 17px;
+}
+
+.section-label {
+  margin-left: 25px;
+  font-family: 'Bricolage Grotesque', system-ui;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 17px;
+  color: #565656;
+}
+
+.state-label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 72px;
+  height: 22px;
+  margin-left: 25px;
+  background: #38A3A5;
+  border-radius: 15px;
+  color: white;
+  margin-top: -20px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 10%;
+}
