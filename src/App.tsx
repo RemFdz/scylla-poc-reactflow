@@ -60,7 +60,7 @@ function App() {
             });
 
             if (wsRef.current)
-                wsRef.current.send(JSON.stringify({ type: 'create_shape', shape: {x: position.x, y: position.y, draggable: true, isDragging: false, rotation: 0}}));
+                wsRef.current.send(JSON.stringify({ type: 'create_shape', shape: {x: position.x, y: position.y, draggable: true, isDragging: false, rotation: 0, node_type: type}}));
         },
         [screenToFlowPosition, type],
     );
@@ -76,7 +76,7 @@ function App() {
         (_event: React.MouseEvent, node: Node) => {
             onMouseMove(_event);
             if (wsRef.current?.readyState === WebSocket.OPEN) {
-                const updatedShape = { id: node.id, x: node.position.x, y: node.position.y, rotation: 0, isDragging: true, draggable: true };
+                const updatedShape = { id: node.id, x: node.position.x, y: node.position.y, rotation: 0, isDragging: true, draggable: true, node_type: node.data.nodeType };
                 wsRef.current.send(JSON.stringify({type: 'update_shape', shape: updatedShape}));
             }
         },
@@ -112,11 +112,24 @@ function App() {
                         node.id === id ? {...node, position} : node
                     );
                 } else {
+                    let title;
+                    let description;
+                    let code;
+
+                    if (data.shape.node_type === "gitclone") {
+                        title = "Git clone";
+                        description = "Clone a git repository";
+                        code = "git clone [repository_url]"
+                    } else {
+                        title = "Git status";
+                        description = "Show file status";
+                        code = "git status"
+                    }
                     const newNode: Node<PrettyNodeData> = {
                         id,
                         position,
                         type: 'pretty',
-                        data: {title: 'Git clone', description: 'Clone a git repository', code: "git clone [repository_url]"}
+                        data: {title: title, description: description, code: code, nodeType: data.shape.node_type}
                     };
 
                     return nds.concat(newNode);

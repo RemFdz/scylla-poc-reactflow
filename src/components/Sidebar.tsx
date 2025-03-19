@@ -16,10 +16,16 @@ const Sidebar = () => {
         <aside>
             <div className="description">You can drag these nodes in the workflow on the left.</div>
             <div>
-                <div className="dndnode input" onDragStart={(event) => onDragStart(event, 'git clone')} draggable>
+                <div className="dndnode input" onDragStart={(event) => onDragStart(event, 'gitclone')} draggable>
                     <GitIcon size={30}></GitIcon>
                 </div>
                 <p className="dndnode-label">Git clone</p>
+            </div>
+            <div>
+                <div className="dndnode input" onDragStart={(event) => onDragStart(event, 'gitstatus')} draggable>
+                    <GitIcon size={30}></GitIcon>
+                </div>
+                <p className="dndnode-label">Git status</p>
             </div>
         </aside>
     );

@@ -6,6 +6,7 @@ export type PrettyNodeData = {
     title: string;
     description: string;
     code: string;
+    nodeType: string;
 };
 
 export const GitIcon = ({ size = 64 }: { size?: number }) => {

@@ -14,6 +14,7 @@ pub struct Shape {
     #[serde(rename = "isDragging")]
     pub is_dragging: bool,
     pub draggable: bool,
+    pub node_type: String
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
