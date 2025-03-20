@@ -29,6 +29,7 @@ function App() {
     const { screenToFlowPosition, flowToScreenPosition } = useReactFlow();
     const [nodeData, setNodeData] = useState<Node<PrettyNodeData>| null>(null);
     const [type] = useDnD();
+    const [infoOpen, setInfoOpen] = useState(false);
 
     const [collaborators, setCollaborators] = useState<Record<string, { x: number, y: number }>>({});
     const reactFlowWrapper = useRef<HTMLDivElement | null>(null);
@@ -209,6 +210,7 @@ function App() {
 
     const onNodeClick = (_: React.MouseEvent, node: Node<PrettyNodeData>) => {
         setNodeData(node);
+        setInfoOpen(true);
     };
 
   return (
@@ -239,7 +241,7 @@ function App() {
                       {Object.entries(collaborators).map(([uuid, pos]) => (
                           <Collaborator key={uuid} x={pos.x} y={pos.y} uuid={uuid} />
                       ))}
-                      {nodeData !== null ? <NodeInfo nodeData={ nodeData }/> : <></>}
+                      {nodeData !== null ? <NodeInfo nodeData={ nodeData } displayed={infoOpen} onClose={() => setInfoOpen(false)}/> : <></>}
                   </ReactFlow>
               </div>
               <Sidebar/>
