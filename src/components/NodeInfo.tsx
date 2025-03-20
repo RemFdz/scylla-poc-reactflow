@@ -1,7 +1,6 @@
 import { type Node } from "@xyflow/react";
 import { PrettyNodeData } from "./PrettyNode.tsx";
 import { Button } from 'antd';
-import { useState } from "react";
 
 const NodeInfo = ({ nodeData, displayed, onClose }: {nodeData: Node<PrettyNodeData>, displayed: boolean, onClose: Function}) => {
 
