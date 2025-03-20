@@ -1,6 +1,7 @@
 use crate::server::DrawServerHandle;
 use actix_ws::{Message, ProtocolError};
 use futures_util::{FutureExt, StreamExt, pin_mut, select};
+use log::{info};
 use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc;
 use uuid::Uuid;
@@ -58,28 +59,35 @@ fn handle_message_from_ws(
 ) -> Option<WebSocketCommand> {
     match ws_res {
         None => {
-            return None;
+            None
         }
         Some(ref msg) => match msg {
             Ok(msg) => match msg {
                 Message::Text(data) => {
-                    let data = data.to_string();
-                    let command: WebSocketCommand = serde_json::from_str(&data).unwrap();
-                    return Some(command);
+                    let parsed_command = serde_json::from_str::<WebSocketCommand>(&data);
+                    match parsed_command {
+                        Ok(command) => { Some(command) }
+                        Err(_) => { 
+                            info!("Failed to parse command{:?}", parsed_command);
+                            None
+                        }
+                    }
                 }
-                Message::Close(_) => {
-                    return None;
+                Message::Close(reason) => {
+                    info!("Connection closed: {:?}", reason);
+                    None
                 }
                 _ => {
-                    println!("Anything but not text: {:?}", msg);
+                    info!("Anything but not text: {:?}", msg);
+                    None
                 }
             },
-            Err(_) => {
-                println!("?????");
+            Err(e) => {
+                info!("Unexpected error: {:?}", e);
+                None
             }
         },
     }
-    None
 }
 
 pub async fn chat_ws(

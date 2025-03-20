@@ -6,6 +6,7 @@ use actix_web::middleware::Logger;
 use actix_web::{App, Error, HttpRequest, HttpResponse, HttpServer, web};
 use env_logger::Env;
 use tokio::task::spawn_local;
+use log::{info};
 
 async fn chat_ws(
     req: HttpRequest,
@@ -14,6 +15,8 @@ async fn chat_ws(
 ) -> Result<HttpResponse, Error> {
     let (res, session, msg_stream) = actix_ws::handle(&req, stream)?;
 
+    info!("New connection from {:?}", req.peer_addr());
+    
     spawn_local(handler::chat_ws(
         (**chat_server).clone(),
         session,
